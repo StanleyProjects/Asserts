@@ -21,7 +21,7 @@ fi
 EXPECTED_TEXT="\`${VERSION}\`
 | [GitHub](https://github.com/${REP_OWNER}/${REP_NAME}/releases/tag/${VERSION})"
 
-if ! grep -q "${EXPECTED_TEXT}" "${ISSUER}"; then
+if ! grep -Fq "${EXPECTED_TEXT}" "${ISSUER}"; then
  echo "File \"${ISSUER}\" does not contain:
 ---
 ${EXPECTED_TEXT}
