@@ -45,8 +45,15 @@ elif test "${ACTUAL_VALUE}" != "Not a regular file \"${TMP_DIR}\"!"; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
 fi
 
-touch "${TMP_DIR}/foo"
 ln -s "${TMP_DIR}/foo" "${TMP_DIR}/link"
+ACTUAL_VALUE="$(ISSUER="${TMP_DIR}/link" ${SCRIPT} 2>&1)"; CODE=$?
+if test "${CODE}" != '1'; then
+ echo "Code(${CODE}) error!" >&2; exit 1
+elif test "${ACTUAL_VALUE}" != "The \"${TMP_DIR}/link\" is symlink!"; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
+fi
+
+touch "${TMP_DIR}/foo"
 ACTUAL_VALUE="$(ISSUER="${TMP_DIR}/link" ${SCRIPT} 2>&1)"; CODE=$?
 if test "${CODE}" != '1'; then
  echo "Code(${CODE}) error!" >&2; exit 1
