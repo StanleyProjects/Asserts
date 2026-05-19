@@ -2,7 +2,10 @@
 
 REP_OWNER='StanleyProjects'
 REP_NAME='Asserts'
-VERSION='0.0.1'
+VERSION='0.0.2'
+
+if test -d 'build'; then
+ echo 'Build dir exists!'; exit 1; fi
 
 mkdir 'build'
 mkdir -p 'build/yml'
