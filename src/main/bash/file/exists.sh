@@ -6,10 +6,10 @@ if test $# -ne 0; then
 if test -z "${ISSUER}"; then
  echo 'No issuer!' >&2; exit 1; fi
 
-if [[ ! -e "${ISSUER}" ]]; then
- echo "No file \"${ISSUER}\"!" >&2; exit 1
-elif [[ -L "${ISSUER}" ]]; then
+if [[ -L "${ISSUER}" ]]; then
  echo "The \"${ISSUER}\" is symlink!" >&2; exit 1
+elif [[ ! -e "${ISSUER}" ]]; then
+ echo "No file \"${ISSUER}\"!" >&2; exit 1
 elif [[ ! -f "${ISSUER}" ]]; then
  echo "Not a regular file \"${ISSUER}\"!" >&2; exit 1
 fi
