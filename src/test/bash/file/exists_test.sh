@@ -29,7 +29,6 @@ elif test "${ACTUAL_VALUE}" != 'No issuer!'; then
 fi
 
 TMP_DIR="$(mktemp -d)" || exit 1
-trap 'rm -rf "${TMP_DIR}"' EXIT
 
 ACTUAL_VALUE="$(ISSUER="${TMP_DIR}/foo" ${SCRIPT} 2>&1)"; CODE=$?
 if test "${CODE}" != '1'; then
@@ -67,3 +66,5 @@ if test "${CODE}" != '0'; then
 elif test "${ACTUAL_VALUE}" != ''; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
 fi
+
+rm -rf "${TMP_DIR}"
