@@ -1,7 +1,6 @@
 #!/usr/local/bin/bash
 
 ISSUER='build/yml/metadata.yml'
-. $asserts/file.sh "${ISSUER}"
 if [[ ! -f "${ISSUER}" ]]; then
  echo "No file \"${ISSUER}\"!"; exit 1
 elif [[ ! -s "${ISSUER}" ]]; then
