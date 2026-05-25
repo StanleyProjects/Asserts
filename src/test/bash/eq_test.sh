@@ -36,7 +36,7 @@ if test "${ACTUAL_VALUE}" != 'Wrong arguments!'; then
 
 :> "${STDERR}"
 
-"${SCRIPT}" '' '' '' 2>"${STDERR}"; CODE=$?
+"${SCRIPT}" '' '' 2>"${STDERR}"; CODE=$?
 if test "${CODE}" != '1'; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
@@ -45,19 +45,19 @@ if test "${ACTUAL_VALUE}" != 'Wrong arguments!'; then
 
 :> "${STDERR}"
 
-"${SCRIPT}" '' '' 2>"${STDERR}"; CODE=$?
+"${SCRIPT}" '' '' '' 2>"${STDERR}"; CODE=$?
 if test "${CODE}" != '1'; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if test "${ACTUAL_VALUE}" != 'No issuer!'; then
+if test "${ACTUAL_VALUE}" != 'No tested context!'; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
 
-ISSUER='foo' "${SCRIPT}" 'a' 'b' 2>"${STDERR}"; CODE=$?
+"${SCRIPT}" '42' 'a' 'b' 2>"${STDERR}"; CODE=$?
 if test "${CODE}" != '1'; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
-EXPECTED_VALUE='Issuer "foo" error!
+EXPECTED_VALUE='Tested context: "42"
 Actual(1): "a"
 Expected(1): "b"'
 ACTUAL_VALUE="$(<"${STDERR}")"
@@ -66,7 +66,7 @@ if test "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}"; then
 
 :> "${STDERR}"
 
-ISSUER='foo' "${SCRIPT}" 'a' 'a' 2>"${STDERR}"; CODE=$?
+"${SCRIPT}" '42' 'a' 'a' 2>"${STDERR}"; CODE=$?
 if test "${CODE}" != '0'; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
