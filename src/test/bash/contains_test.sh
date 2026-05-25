@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-SCRIPT="src/main/bash/file/exists.sh"
+SCRIPT="src/main/bash/contains.sh"
 
 echo "Running test of \"${SCRIPT}\"..."
 
@@ -31,53 +31,63 @@ if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != 'No assert path!' ]]; then
+if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
 
-TMP_PATH="$(mktemp)"
-rm "${TMP_PATH}"
-"${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
+"${SCRIPT}" '' '' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != "No file \"${TMP_PATH}\"!" ]]; then
+if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
 
-TMP_PATH="$(mktemp -d)"
-"${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
+"${SCRIPT}" '' '' '' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != "Not a regular file \"${TMP_PATH}\"!" ]]; then
+if [[ "${ACTUAL_VALUE}" != 'No assert context!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
-rm -rf "${TMP_PATH}"
 
 :> "${STDERR}"
 
-TMP_PATH="$(mktemp)"
-rm "${TMP_PATH}"
-ln -s "${TMP_PATH}" "${TMP_PATH}" && [[ -L "${TMP_PATH}" ]] || exit 1
-"${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
+"${SCRIPT}" '42' 'a' '' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != "The \"${TMP_PATH}\" is symlink!" ]]; then
+if [[ "${ACTUAL_VALUE}" != 'No expected subtext!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
-rm "${TMP_PATH}"
 
 :> "${STDERR}"
 
-TMP_PATH="$(mktemp)"
-"${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
-if [[ "${CODE}" != '0' ]]; then
+"${SCRIPT}" '42' 'foo' 'bar' 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
+EXPECTED_VALUE='Assert context: "42"
+---(3)
+foo
+---
+...does not contain:
+---(3)
+bar
+---'
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ -n "${ACTUAL_VALUE}" ]]; then
+if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
-rm "${TMP_PATH}"
+
+:> "${STDERR}"
+
+TEXTS=('foo' ' foo' 'foo ' ' foo ' 'foo foo' 'foo bar' 'qux foo bar')
+for ACTUAL_TEXT in "${TEXTS[@]}"; do
+ "${SCRIPT}" '42' "${ACTUAL_TEXT}" 'foo' 2>"${STDERR}"; CODE=$?
+ if [[ "${CODE}" != '0' ]]; then
+  echo "Code(${CODE}) error!" >&2; exit 1; fi
+ ACTUAL_VALUE="$(<"${STDERR}")"
+ if [[ -n "${ACTUAL_VALUE}" ]]; then
+  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+done
 
 rm "${STDERR}"
