@@ -12,5 +12,5 @@ elif [[ -L "${TESTED_PATH}" ]]; then
 elif [[ ! -e "${TESTED_PATH}" ]]; then
  echo "No file \"${TESTED_PATH}\"!" >&2; exit 1
 elif [[ ! -f "${TESTED_PATH}" ]]; then
- echo "Not a regular file \"${ISSUER}\"!" >&2; exit 1
+ echo "Not a regular file \"${TESTED_PATH}\"!" >&2; exit 1
 fi

@@ -18,41 +18,41 @@ fi
 
 STDERR="$(mktemp)"
 
-"${SCRIPT}" '' 2>"${STDERR}"; CODE=$?
-if test "${CODE}" != '1'; then
+"${SCRIPT}" 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if test "${ACTUAL_VALUE}" != 'Wrong arguments!'; then
+if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
 
-"${SCRIPT}" 2>"${STDERR}"; CODE=$?
-if test "${CODE}" != '1'; then
+"${SCRIPT}" '' 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if test "${ACTUAL_VALUE}" != 'No issuer!'; then
+if [[ "${ACTUAL_VALUE}" != 'No tested path!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
 
 TMP_PATH="$(mktemp)"
 rm "${TMP_PATH}"
-ISSUER="${TMP_PATH}" "${SCRIPT}" 2>"${STDERR}"; CODE=$?
-if test "${CODE}" != '1'; then
+"${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if test "${ACTUAL_VALUE}" != "No file \"${TMP_PATH}\"!"; then
+if [[ "${ACTUAL_VALUE}" != "No file \"${TMP_PATH}\"!" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
 
 TMP_PATH="$(mktemp -d)"
-ISSUER="${TMP_PATH}" "${SCRIPT}" 2>"${STDERR}"; CODE=$?
-if test "${CODE}" != '1'; then
+"${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if test "${ACTUAL_VALUE}" != "Not a regular file \"${TMP_PATH}\"!"; then
+if [[ "${ACTUAL_VALUE}" != "Not a regular file \"${TMP_PATH}\"!" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 rm -rf "${TMP_PATH}"
 
@@ -61,22 +61,22 @@ rm -rf "${TMP_PATH}"
 TMP_PATH="$(mktemp)"
 rm "${TMP_PATH}"
 ln -s "${TMP_PATH}" "${TMP_PATH}" && [[ -L "${TMP_PATH}" ]] || exit 1
-ISSUER="${TMP_PATH}" "${SCRIPT}" 2>"${STDERR}"; CODE=$?
-if test "${CODE}" != '1'; then
+"${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if test "${ACTUAL_VALUE}" != "The \"${TMP_PATH}\" is symlink!"; then
+if [[ "${ACTUAL_VALUE}" != "The \"${TMP_PATH}\" is symlink!" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 rm "${TMP_PATH}"
 
 :> "${STDERR}"
 
 TMP_PATH="$(mktemp)"
-ISSUER="${TMP_PATH}" "${SCRIPT}" 2>"${STDERR}"; CODE=$?
-if test "${CODE}" != '0'; then
+"${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '0' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if test -n "${ACTUAL_VALUE}"; then
+if [[ -n "${ACTUAL_VALUE}" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 rm "${TMP_PATH}"
 
