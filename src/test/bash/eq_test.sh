@@ -2,6 +2,8 @@
 
 SCRIPT="src/main/bash/eq.sh"
 
+echo "Running test of \"${SCRIPT}\"..."
+
 if [[ ! -e "${SCRIPT}" ]]; then
  echo "No file \"${SCRIPT}\"!" >&2; exit 1
 elif [[ -L "${SCRIPT}" ]]; then
