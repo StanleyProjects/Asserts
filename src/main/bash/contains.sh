@@ -11,13 +11,16 @@ if [[ -z "${ASSERT_CONTEXT}" ]]; then
 ACTUAL_TEXT="$2"
 EXPECTED_SUBTEXT="$3"
 
+if [[ -z "${EXPECTED_SUBTEXT}" ]]; then
+ echo 'No expected subtext!' >&2; exit 1; fi
+
 if [[ "${ACTUAL_TEXT}" != *"${EXPECTED_SUBTEXT}"* ]]; then
- printf "Assert context: \"${ASSERT_CONTEXT}\"
----
+ printf '%s' "Assert context: \"${ASSERT_CONTEXT}\"
+---(${#ACTUAL_TEXT})
 ${ACTUAL_TEXT}
 ---
 ...does not contain:
----
+---(${#EXPECTED_SUBTEXT})
 ${EXPECTED_SUBTEXT}
 ---
 " >&2; exit 1; fi
