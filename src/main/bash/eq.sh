@@ -1,11 +1,11 @@
 #!/usr/local/bin/bash
 
-if test $# -ne 3; then
+if [[ $# -ne 3 ]]; then
  echo 'Wrong arguments!' >&2; exit 1; fi
 
 TESTED_CONTEXT="$1"
 
-if test -z "${TESTED_CONTEXT}"; then
+if [[ -z "${TESTED_CONTEXT}" ]]; then
  echo 'No tested context!' >&2; exit 1; fi
 
 VALUE_ACTUAL="$2"
