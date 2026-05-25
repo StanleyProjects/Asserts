@@ -1,15 +1,16 @@
 #!/usr/local/bin/bash
 
-if test $# -ne 0; then
+if [[ $# -ne 1 ]]; then
  echo 'Wrong arguments!' >&2; exit 1; fi
 
-if test -z "${ISSUER}"; then
- echo 'No issuer!' >&2; exit 1; fi
+TESTED_PATH="$1"
 
-if [[ -L "${ISSUER}" ]]; then
- echo "The \"${ISSUER}\" is symlink!" >&2; exit 1
-elif [[ ! -e "${ISSUER}" ]]; then
- echo "No file \"${ISSUER}\"!" >&2; exit 1
-elif [[ ! -f "${ISSUER}" ]]; then
- echo "Not a regular file \"${ISSUER}\"!" >&2; exit 1
+if [[ -z "${TESTED_PATH}" ]]; then
+ echo 'No tested path!' >&2; exit 1
+elif [[ -L "${TESTED_PATH}" ]]; then
+ echo "The \"${TESTED_PATH}\" is symlink!" >&2; exit 1
+elif [[ ! -e "${TESTED_PATH}" ]]; then
+ echo "No file \"${TESTED_PATH}\"!" >&2; exit 1
+elif [[ ! -f "${TESTED_PATH}" ]]; then
+ echo "Not a regular file \"${TESTED_PATH}\"!" >&2; exit 1
 fi

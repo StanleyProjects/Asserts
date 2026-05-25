@@ -2,9 +2,9 @@
 
 REP_OWNER='StanleyProjects'
 REP_NAME='Asserts'
-VERSION='0.0.3'
+VERSION='0.0.4'
 
-if test -d 'build'; then
+if [[ -d 'build' ]]; then
  echo 'Build dir exists!'; exit 1; fi
 
 mkdir 'build'
@@ -24,5 +24,5 @@ if [[ ! -s 'README.md' ]]; then
 mkdir -p 'build/zip'
 ISSUER="build/zip/${REP_NAME}-${VERSION}.zip"
 zip -r "${ISSUER}" 'src/main/bash' 'LICENSE' 'README.md'
-if test $? -ne 0; then
+if [[ $? -ne 0 ]]; then
  echo 'Zip error!'; exit 1; fi
