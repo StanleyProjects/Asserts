@@ -14,26 +14,34 @@ elif [[ ! -x "${SCRIPT}" ]]; then
  echo "File \"${SCRIPT}\" is not executable!" >&2; exit 1
 fi
 
-ACTUAL_VALUE="$(${SCRIPT} 2>&1)"; CODE=$?
-if test "${CODE}" != '1'; then
- echo "Code(${CODE}) error!" >&2; exit 1
-elif test "${ACTUAL_VALUE}" != 'Wrong arguments!'; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
-fi
+STDERR="$(mktemp)"
 
-ACTUAL_VALUE="$(${SCRIPT} '' 2>&1)"; CODE=$?
+"${SCRIPT}" 2>"${STDERR}"; CODE=$?
 if test "${CODE}" != '1'; then
- echo "Code(${CODE}) error!" >&2; exit 1
-elif test "${ACTUAL_VALUE}" != 'Wrong arguments!'; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
-fi
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if test "${ACTUAL_VALUE}" != 'Wrong arguments!'; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
-ACTUAL_VALUE="$(${SCRIPT} '' '' '' 2>&1)"; CODE=$?
+:> "${STDERR}"
+
+"${SCRIPT}" '' 2>"${STDERR}"; CODE=$?
 if test "${CODE}" != '1'; then
- echo "Code(${CODE}) error!" >&2; exit 1
-elif test "${ACTUAL_VALUE}" != 'Wrong arguments!'; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
-fi
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if test "${ACTUAL_VALUE}" != 'Wrong arguments!'; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+
+:> "${STDERR}"
+
+"${SCRIPT}" '' '' '' 2>"${STDERR}"; CODE=$?
+if test "${CODE}" != '1'; then
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if test "${ACTUAL_VALUE}" != 'Wrong arguments!'; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+
+:> "${STDERR}"
 
 ACTUAL_VALUE="$(${SCRIPT} '' '' 2>&1)"; CODE=$?
 if test "${CODE}" != '1'; then
@@ -65,3 +73,5 @@ if test "${CODE}" != '0'; then
 elif test "${ACTUAL_VALUE}" != ''; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
 fi
+
+rm "${STDERR}"
