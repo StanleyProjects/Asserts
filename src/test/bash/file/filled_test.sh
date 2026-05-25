@@ -14,65 +14,80 @@ elif [[ ! -x "${SCRIPT}" ]]; then
  echo "File \"${SCRIPT}\" is not executable!" >&2; exit 1
 fi
 
-ACTUAL_VALUE="$(${SCRIPT} '' 2>&1)"; CODE=$?
+STDERR="$(mktemp)"
+
+"${SCRIPT}" '' 2>"${STDERR}"; CODE=$?
 if test "${CODE}" != '1'; then
- echo "Code(${CODE}) error!" >&2; exit 1
-elif test "${ACTUAL_VALUE}" != 'Wrong arguments!'; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
-fi
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if test "${ACTUAL_VALUE}" != 'Wrong arguments!'; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
-ACTUAL_VALUE="$(${SCRIPT} 2>&1)"; CODE=$?
+:> "${STDERR}"
+
+"${SCRIPT}" 2>"${STDERR}"; CODE=$?
 if test "${CODE}" != '1'; then
- echo "Code(${CODE}) error!" >&2; exit 1
-elif test "${ACTUAL_VALUE}" != 'No issuer!'; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
-fi
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if test "${ACTUAL_VALUE}" != 'No issuer!'; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
-TMP_DIR="$(mktemp -d)" || exit 1
+:> "${STDERR}"
 
-ACTUAL_VALUE="$(ISSUER="${TMP_DIR}/foo" ${SCRIPT} 2>&1)"; CODE=$?
+TMP_PATH="$(mktemp)"
+rm "${TMP_PATH}"
+ISSUER="${TMP_PATH}" "${SCRIPT}" 2>"${STDERR}"; CODE=$?
 if test "${CODE}" != '1'; then
- echo "Code(${CODE}) error!" >&2; exit 1
-elif test "${ACTUAL_VALUE}" != "No file \"${TMP_DIR}/foo\"!"; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
-fi
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if test "${ACTUAL_VALUE}" != "No file \"${TMP_PATH}\"!"; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
-ACTUAL_VALUE="$(ISSUER="${TMP_DIR}" ${SCRIPT} 2>&1)"; CODE=$?
+:> "${STDERR}"
+
+TMP_PATH="$(mktemp -d)"
+ISSUER="${TMP_PATH}" "${SCRIPT}" 2>"${STDERR}"; CODE=$?
 if test "${CODE}" != '1'; then
- echo "Code(${CODE}) error!" >&2; exit 1
-elif test "${ACTUAL_VALUE}" != "Not a regular file \"${TMP_DIR}\"!"; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
-fi
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if test "${ACTUAL_VALUE}" != "Not a regular file \"${TMP_PATH}\"!"; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+rm -rf "${TMP_PATH}"
 
-ln -s "${TMP_DIR}/foo" "${TMP_DIR}/link"
-ACTUAL_VALUE="$(ISSUER="${TMP_DIR}/link" ${SCRIPT} 2>&1)"; CODE=$?
+:> "${STDERR}"
+
+TMP_PATH="$(mktemp)"
+rm "${TMP_PATH}"
+ln -s "${TMP_PATH}" "${TMP_PATH}" && [[ -L "${TMP_PATH}" ]] || exit 1
+ISSUER="${TMP_PATH}" "${SCRIPT}" 2>"${STDERR}"; CODE=$?
 if test "${CODE}" != '1'; then
- echo "Code(${CODE}) error!" >&2; exit 1
-elif test "${ACTUAL_VALUE}" != "The \"${TMP_DIR}/link\" is symlink!"; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
-fi
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if test "${ACTUAL_VALUE}" != "The \"${TMP_PATH}\" is symlink!"; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+rm "${TMP_PATH}"
 
-touch "${TMP_DIR}/foo"
-ACTUAL_VALUE="$(ISSUER="${TMP_DIR}/link" ${SCRIPT} 2>&1)"; CODE=$?
+:> "${STDERR}"
+
+TMP_PATH="$(mktemp)"
+ISSUER="${TMP_PATH}" "${SCRIPT}" 2>"${STDERR}"; CODE=$?
 if test "${CODE}" != '1'; then
- echo "Code(${CODE}) error!" >&2; exit 1
-elif test "${ACTUAL_VALUE}" != "The \"${TMP_DIR}/link\" is symlink!"; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
-fi
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if test "${ACTUAL_VALUE}" != "File \"${TMP_PATH}\" is empty!"; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+rm "${TMP_PATH}"
 
-ACTUAL_VALUE="$(ISSUER="${TMP_DIR}/foo" ${SCRIPT} 2>&1)"; CODE=$?
-if test "${CODE}" != '1'; then
- echo "Code(${CODE}) error!" >&2; exit 1
-elif test "${ACTUAL_VALUE}" != "File \"${TMP_DIR}/foo\" is empty!"; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
-fi
+:> "${STDERR}"
 
-echo 'foobarbaz' > "${TMP_DIR}/foo"
-ACTUAL_VALUE="$(ISSUER="${TMP_DIR}/foo" ${SCRIPT} 2>&1)"; CODE=$?
+TMP_PATH="$(mktemp)"
+printf '42' > "${TMP_PATH}"
+ISSUER="${TMP_PATH}" "${SCRIPT}" 2>"${STDERR}"; CODE=$?
 if test "${CODE}" != '0'; then
- echo "Code(${CODE}) error!" >&2; exit 1
-elif test "${ACTUAL_VALUE}" != ''; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1
-fi
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if test -n "${ACTUAL_VALUE}"; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+rm "${TMP_PATH}"
 
-rm -rf "${TMP_DIR}"
+rm "${STDERR}"
