@@ -19,58 +19,58 @@ fi
 STDERR="$(mktemp)"
 
 "${SCRIPT}" 2>"${STDERR}"; CODE=$?
-if test "${CODE}" != '1'; then
+if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if test "${ACTUAL_VALUE}" != 'Wrong arguments!'; then
+if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
 
 "${SCRIPT}" '' 2>"${STDERR}"; CODE=$?
-if test "${CODE}" != '1'; then
+if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if test "${ACTUAL_VALUE}" != 'Wrong arguments!'; then
+if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
 
 "${SCRIPT}" '' '' 2>"${STDERR}"; CODE=$?
-if test "${CODE}" != '1'; then
+if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if test "${ACTUAL_VALUE}" != 'Wrong arguments!'; then
+if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
 
 "${SCRIPT}" '' '' '' 2>"${STDERR}"; CODE=$?
-if test "${CODE}" != '1'; then
+if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if test "${ACTUAL_VALUE}" != 'No tested context!'; then
+if [[ "${ACTUAL_VALUE}" != 'No tested context!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
 
 "${SCRIPT}" '42' 'a' 'b' 2>"${STDERR}"; CODE=$?
-if test "${CODE}" != '1'; then
+if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 EXPECTED_VALUE='Tested context: "42"
 Actual(1): "a"
 Expected(1): "b"'
 ACTUAL_VALUE="$(<"${STDERR}")"
-if test "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}"; then
+if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
 
 "${SCRIPT}" '42' 'a' 'a' 2>"${STDERR}"; CODE=$?
-if test "${CODE}" != '0'; then
+if [[ "${CODE}" != '0' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if test -n "${ACTUAL_VALUE}"; then
+if [[ -n "${ACTUAL_VALUE}" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 rm "${STDERR}"
