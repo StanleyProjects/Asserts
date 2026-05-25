@@ -12,6 +12,6 @@ VALUE_ACTUAL="$2"
 VALUE_EXPECTED="$3"
 
 if [[ "${VALUE_ACTUAL}" == "${VALUE_EXPECTED}" ]]; then
- printf "Assert context: \"${ASSERT_CONTEXT}\"
+ printf '%s' "Assert context: \"${ASSERT_CONTEXT}\"
 Values(${#VALUE_ACTUAL}) equal: \"${VALUE_ACTUAL}\"
 " >&2; exit 1; fi
