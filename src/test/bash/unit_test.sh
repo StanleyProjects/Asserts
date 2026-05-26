@@ -9,6 +9,8 @@ tests='src/test/bash'
 . $tests/ne_test.sh
 . $tests/regex_test.sh
 
+. $tests/check_coverage.sh
+
 . $tests/license_test.sh
 . $tests/readme_test.sh
 
