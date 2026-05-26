@@ -87,10 +87,9 @@ ACTUAL_VALUE="$(<"${STDERR}")"
 if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
-:> "${STDERR}"
-
 ACTUAL_TEXTS=('foo' ' foo' 'foo ' ' foo ' 'foo foo' 'foo bar' 'qux foo bar')
 for ASSERTS_TEXT in "${ACTUAL_TEXTS[@]}"; do
+ :> "${STDERR}"
  "${SCRIPT}" '42' "${ASSERTS_TEXT}" '^.*foo.*$' 2>"${STDERR}"; CODE=$?
  if [[ "${CODE}" != '0' ]]; then
   echo "Code(${CODE}) error!" >&2; exit 1; fi
