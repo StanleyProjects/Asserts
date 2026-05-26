@@ -49,7 +49,7 @@ if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != 'No assert context!' ]]; then
+if [[ "${ACTUAL_VALUE}" != 'No context!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
@@ -58,7 +58,7 @@ if [[ "${ACTUAL_VALUE}" != 'No assert context!' ]]; then
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != 'No expected subtext!' ]]; then
+if [[ "${ACTUAL_VALUE}" != 'No subtext!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
@@ -66,7 +66,7 @@ if [[ "${ACTUAL_VALUE}" != 'No expected subtext!' ]]; then
 "${SCRIPT}" '42' 'foo' 'bar' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
-EXPECTED_VALUE='Assert context: "42"
+EXPECTED_VALUE='Context: "42"
 ---(3)
 foo
 ---
