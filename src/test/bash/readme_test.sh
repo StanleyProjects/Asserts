@@ -19,7 +19,8 @@ elif [[ ! -s "${ISSUER}" ]]; then
 fi
 
 EXPECTED_TEXT="\`${VERSION}\`
-| [GitHub](https://github.com/${REP_OWNER}/${REP_NAME}/releases/tag/${VERSION})"
+| [GitHub](https://github.com/${REP_OWNER}/${REP_NAME}/releases/tag/${VERSION})
+| [Key](https://${REP_OWNER}.github.io/release-public.pem"
 
 ALL_TEXT="$(< "${ISSUER}")"
 if [[ "${ALL_TEXT}" != *"${EXPECTED_TEXT}"* ]]; then
