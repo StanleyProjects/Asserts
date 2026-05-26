@@ -65,6 +65,21 @@ ACTUAL_VALUE="$(<"${STDERR}")"
 if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
+ACTUAL_TEXTS=('a' ' ')
+for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
+ :> "${STDERR}"
+ "${SCRIPT}" '42' "${ACTUAL_TEXT}" 2>"${STDERR}"; CODE=$?
+ if [[ "${CODE}" != '1' ]]; then
+  echo "Code(${CODE}) error!" >&2; exit 1; fi
+ EXPECTED_VALUE="Context: \"42\"
+---(1)
+${ACTUAL_TEXT}
+---"
+ ACTUAL_VALUE="$(<"${STDERR}")"
+ if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
+  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+done
+
 :> "${STDERR}"
 
 "${SCRIPT}" '42' '' 2>"${STDERR}"; CODE=$?
