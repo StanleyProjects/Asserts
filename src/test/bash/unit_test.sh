@@ -4,6 +4,7 @@ tests='src/test/bash'
 
 . $tests/contains_test.sh
 . $tests/eq_test.sh
+. $tests/empty_test.sh
 . $tests/file/exists_test.sh
 . $tests/file/filled_test.sh
 . $tests/ne_test.sh

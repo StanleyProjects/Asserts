@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-if [[ $# -ne 3 ]]; then
+if [[ $# -ne 2 ]]; then
  echo 'Wrong arguments!' >&2; exit 1; fi
 
 ASSERTS_CONTEXT="$1"
