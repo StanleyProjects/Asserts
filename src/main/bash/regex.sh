@@ -9,18 +9,18 @@ if [[ -z "${ASSERTS_CONTEXT}" ]]; then
  echo 'No context!' >&2; exit 1; fi
 
 ASSERTS_TEXT="$2"
-ASSERTS_SUBTEXT="$3"
+ASSERTS_REGEX="$3"
 
-if [[ -z "${ASSERTS_SUBTEXT}" ]]; then
- echo 'No subtext!' >&2; exit 1; fi
+if [[ -z "${ASSERTS_REGEX}" ]]; then
+ echo 'No regex!' >&2; exit 1; fi
 
-if [[ "${ASSERTS_TEXT}" != *"${ASSERTS_SUBTEXT}"* ]]; then
+if [[ ! "${ACTUAL_TEXT}" =~ ${ASSERTS_REGEX} ]]; then
  printf '%s' "Context: \"${ASSERTS_CONTEXT}\"
 ---(${#ASSERTS_TEXT})
 ${ASSERTS_TEXT}
 ---
-does not contain:
----(${#ASSERTS_SUBTEXT})
-${ASSERTS_SUBTEXT}
+does not satisfy the regex:
+---(${#ASSERTS_REGEX})
+${ASSERTS_REGEX}
 ---
 " >&2; exit 1; fi
