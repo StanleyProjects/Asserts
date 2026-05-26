@@ -49,7 +49,7 @@ if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != 'No assert context!' ]]; then
+if [[ "${ACTUAL_VALUE}" != 'No context!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
@@ -57,7 +57,7 @@ if [[ "${ACTUAL_VALUE}" != 'No assert context!' ]]; then
 "${SCRIPT}" '42' 'a' 'a' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
-EXPECTED_VALUE='Assert context: "42"
+EXPECTED_VALUE='Context: "42"
 Values(1) equal: "a"'
 ACTUAL_VALUE="$(<"${STDERR}")"
 if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then

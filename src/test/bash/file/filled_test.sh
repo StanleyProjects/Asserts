@@ -31,7 +31,7 @@ if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != 'No assert path!' ]]; then
+if [[ "${ACTUAL_VALUE}" != 'No path!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"

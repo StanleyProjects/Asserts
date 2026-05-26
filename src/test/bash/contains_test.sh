@@ -45,11 +45,20 @@ if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
 
 :> "${STDERR}"
 
+"${SCRIPT}" '' '' '' '' 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '1' ]]; then
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+
+:> "${STDERR}"
+
 "${SCRIPT}" '' '' '' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != 'No assert context!' ]]; then
+if [[ "${ACTUAL_VALUE}" != 'No context!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
@@ -58,7 +67,7 @@ if [[ "${ACTUAL_VALUE}" != 'No assert context!' ]]; then
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != 'No expected subtext!' ]]; then
+if [[ "${ACTUAL_VALUE}" != 'No subtext!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
@@ -66,11 +75,11 @@ if [[ "${ACTUAL_VALUE}" != 'No expected subtext!' ]]; then
 "${SCRIPT}" '42' 'foo' 'bar' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
-EXPECTED_VALUE='Assert context: "42"
+EXPECTED_VALUE='Context: "42"
 ---(3)
 foo
 ---
-...does not contain:
+does not contain:
 ---(3)
 bar
 ---'
@@ -80,8 +89,8 @@ if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
 
 :> "${STDERR}"
 
-TEXTS=('foo' ' foo' 'foo ' ' foo ' 'foo foo' 'foo bar' 'qux foo bar')
-for ACTUAL_TEXT in "${TEXTS[@]}"; do
+ACTUAL_TEXTS=('foo' ' foo' 'foo ' ' foo ' 'foo foo' 'foo bar' 'qux foo bar')
+for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
  "${SCRIPT}" '42' "${ACTUAL_TEXT}" 'foo' 2>"${STDERR}"; CODE=$?
  if [[ "${CODE}" != '0' ]]; then
   echo "Code(${CODE}) error!" >&2; exit 1; fi
