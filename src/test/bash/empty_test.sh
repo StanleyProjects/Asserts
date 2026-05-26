@@ -65,7 +65,11 @@ ACTUAL_VALUE="$(<"${STDERR}")"
 if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
-ACTUAL_TEXTS=('a' ' ')
+ACTUAL_TEXTS=(
+ 'a' ' ' $'\t' $'\n' $'\r' $'\v' $'\f' $'\x01'
+ '!' '"' '#' '$' '%' '&' "'" '(' ')' '*' '+' ',' '-' '.' '/'
+ ':' ';' '<' '=' '>' '?' '@' '[' ']' '^' '_' '`' '{' '|' '}' '~' '\'
+)
 for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
  :> "${STDERR}"
  "${SCRIPT}" '42' "${ACTUAL_TEXT}" 2>"${STDERR}"; CODE=$?
