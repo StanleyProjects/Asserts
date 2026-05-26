@@ -14,7 +14,7 @@ ASSERTS_REGEX="$3"
 if [[ -z "${ASSERTS_REGEX}" ]]; then
  echo 'No regex!' >&2; exit 1; fi
 
-if [[ ! "${ACTUAL_TEXT}" =~ ${ASSERTS_REGEX} ]]; then
+if [[ ! "${ASSERTS_TEXT}" =~ ${ASSERTS_REGEX} ]]; then
  printf '%s' "Context: \"${ASSERTS_CONTEXT}\"
 ---(${#ASSERTS_TEXT})
 ${ASSERTS_TEXT}
