@@ -3,9 +3,9 @@
 tests='src/test/bash'
 
 while IFS= read -r -d '' SCRIPT; do
- if [[ "${SCRIPT}" == "${tests}/unit_test.sh" || "${SCRIPT}" != *_test.sh ]]; then
+ if [[ "${SCRIPT}" == "${tests}/unit_test.sh" || "${SCRIPT}" =~ ^"${tests}/check_".+\.sh$ ]]; then
   continue
- elif [[ -L "${SCRIPT}" ||  ! -f "${SCRIPT}" || ! -x "${SCRIPT}" ]]; then
+ elif [[ -L "${SCRIPT}" ||  ! -f "${SCRIPT}" || ! -x "${SCRIPT}" || ! "${SCRIPT}" =~ ^"${tests}/".+\_test.sh$ ]]; then
   echo "Script \"${SCRIPT}\" is not supported!" >&2; exit 1
  fi
  . "${SCRIPT}"
