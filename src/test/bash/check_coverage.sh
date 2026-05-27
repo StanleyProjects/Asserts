@@ -8,7 +8,7 @@ COVERED_COUNT=0
 while IFS= read -r -d '' SCRIPT; do
  if [[ -L "${SCRIPT}" ||  ! -f "${SCRIPT}" || ! -x "${SCRIPT}" ]]; then
   continue
- elif [[ "${SCRIPT}" != *.sh ]]; then
+ elif [[ ! "${SCRIPT}" =~ ^${scripts}/.+\.sh$ ]]; then
   echo "Script \"${SCRIPT}\" is not supported!" >&2; exit 1
  fi
  SCRIPTS_COUNT=$((SCRIPTS_COUNT + 1))

@@ -2,13 +2,15 @@
 
 tests='src/test/bash'
 
+# todo unit_test.sh -> check_tests.sh
+
 while IFS= read -r -d '' SCRIPT; do
  if [[ "${SCRIPT}" == "${tests}/unit_test.sh" || "${SCRIPT}" =~ ^"${tests}/check_".+\.sh$ ]]; then
   continue
- elif [[ -L "${SCRIPT}" ||  ! -f "${SCRIPT}" || ! -x "${SCRIPT}" || ! "${SCRIPT}" =~ ^"${tests}/".+\_test.sh$ ]]; then
+ elif [[ -L "${SCRIPT}" ||  ! -f "${SCRIPT}" || ! -x "${SCRIPT}" || ! "${SCRIPT}" =~ ^${tests}/.+_test\.sh$ ]]; then
   echo "Script \"${SCRIPT}\" is not supported!" >&2; exit 1
  fi
- . "${SCRIPT}"
+ "${SCRIPT}" || exit 1
 done < <(find "${tests}" -depth -type f -print0)
 
 . $tests/check_coverage.sh
