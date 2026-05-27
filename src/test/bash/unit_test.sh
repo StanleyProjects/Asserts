@@ -2,18 +2,18 @@
 
 tests='src/test/bash'
 
-. $tests/contains_test.sh
-. $tests/eq_test.sh
-. $tests/empty_test.sh
-. $tests/file/not/empty_test.sh
-. $tests/file/empty_test.sh
-. $tests/file/exists_test.sh
-. $tests/ne_test.sh
-. $tests/regex_test.sh
+while IFS= read -r -d '' SCRIPT; do
+ if [[ "${SCRIPT}" == "${tests}/unit_test.sh" || "${SCRIPT}" != *_test.sh ]]; then
+  continue
+ elif [[ -L "${SCRIPT}" ||  ! -f "${SCRIPT}" || ! -x "${SCRIPT}" ]]; then
+  echo "Script \"${SCRIPT}\" is not supported!" >&2; exit 1
+ fi
+ . "${SCRIPT}"
+done < <(find "${tests}" -depth -type f -print0)
 
 . $tests/check_coverage.sh
 
-. $tests/license_test.sh
-. $tests/readme_test.sh
+. $tests/check_license.sh
+. $tests/check_readme.sh
 
 echo 'All tests were successful.'
