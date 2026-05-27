@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-SCRIPT="src/main/bash/file/filled.sh"
+SCRIPT="src/main/bash/file/empty.sh"
 
 echo "Running test of \"${SCRIPT}\"..."
 
@@ -72,18 +72,18 @@ rm "${TMP_PATH}"
 :> "${STDERR}"
 
 TMP_PATH="$(mktemp)"
+printf '42' > "${TMP_PATH}"
 "${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != "File \"${TMP_PATH}\" is empty!" ]]; then
+if [[ "${ACTUAL_VALUE}" != "File \"${TMP_PATH}\" is not empty!" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 rm "${TMP_PATH}"
 
 :> "${STDERR}"
 
 TMP_PATH="$(mktemp)"
-printf '42' > "${TMP_PATH}"
 "${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '0' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
