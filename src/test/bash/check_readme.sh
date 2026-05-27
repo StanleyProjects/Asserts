@@ -40,8 +40,7 @@ EXPECTED_TEXTS=(
 )
 
 for EXPECTED_TEXT in "${EXPECTED_TEXTS[@]}"; do
- ALL_TEXT="$(< "${ISSUER}")"
- if [[ "${ALL_TEXT}" != *"${EXPECTED_TEXT}"* ]]; then
+ if [[ "$(< "${ISSUER}")" != *"${EXPECTED_TEXT}"* ]]; then
   echo "File \"${ISSUER}\" does not contain:
  ---
  ${EXPECTED_TEXT}
