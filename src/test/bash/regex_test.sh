@@ -112,4 +112,48 @@ for ASSERTS_TEXT in "${ACTUAL_TEXTS[@]}"; do
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 done
 
+:> "${STDERR}"
+
+ASSERTS_REGEX='[1-4]{1}\n[5-7]{2}'
+ASSERTS_TEXT=$'foo\n1\n55\nbaz'
+"${SCRIPT}" '42' "${ASSERTS_TEXT}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '1' ]]; then
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+EXPECTED_VALUE='Context: "42"
+---(12)
+foo
+1
+55
+baz
+---
+does not satisfy the regex:
+---(18)
+[1-4]{1}\n[5-7]{2}
+---'
+ACTUAL_VALUE="$(<"${STDERR}")"
+if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+
+:> "${STDERR}"
+
+ASSERTS_REGEX=$'(^|\n)[1-4]{1}\n[5-7]{2}($|\n)'
+ASSERTS_TEXT=$'foo\n1\n55\nbaz'
+"${SCRIPT}" '42' "${ASSERTS_TEXT}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '0' ]]; then
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if [[ -n "${ACTUAL_VALUE}" ]]; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+
+:> "${STDERR}"
+
+ASSERTS_REGEX='(^|\\n)[1-4]{1}\\n[5-7]{2}($|\\n)'
+ASSERTS_TEXT='foo\n1\n55\nbaz'
+"${SCRIPT}" '42' "${ASSERTS_TEXT}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '0' ]]; then
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if [[ -n "${ACTUAL_VALUE}" ]]; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+
 rm "${STDERR}"
