@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-SCRIPT="src/main/bash/file/bashx.sh"
+SCRIPT="src/main/bash/file/x.sh"
 
 echo "Running test of \"${SCRIPT}\"..."
 
@@ -52,7 +52,7 @@ TMP_PATH="$(mktemp -d)"
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != "The \"${TMP_PATH}\" is not a regular file!" ]]; then
+if [[ "${ACTUAL_VALUE}" != "\"${TMP_PATH}\" is not a regular file!" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 rm -rf "${TMP_PATH}"
 
@@ -65,7 +65,7 @@ ln -s "${TMP_PATH}" "${TMP_PATH}" && [[ -L "${TMP_PATH}" ]] || exit 1
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != "The \"${TMP_PATH}\" is a symlink!" ]]; then
+if [[ "${ACTUAL_VALUE}" != "\"${TMP_PATH}\" is a symlink!" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 rm "${TMP_PATH}"
 
@@ -76,9 +76,11 @@ TMP_PATH="$(mktemp)"
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != "The \"${TMP_PATH}\" is empty!" ]]; then
+if [[ "${ACTUAL_VALUE}" != "\"${TMP_PATH}\" is empty!" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 rm "${TMP_PATH}"
+
+:> "${STDERR}"
 
 TMP_PATH="$(mktemp)"
 printf "foo" > "${TMP_PATH}"
@@ -86,12 +88,14 @@ printf "foo" > "${TMP_PATH}"
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != "The \"${TMP_PATH}\" is not executable!" ]]; then
+if [[ "${ACTUAL_VALUE}" != "\"${TMP_PATH}\" is not executable!" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 rm "${TMP_PATH}"
 
+:> "${STDERR}"
+
 TMP_PATH="$(mktemp)"
-printf 'if [[ "${RANDOM}" -eq "42" ]]; then echo "catch"; fi' > "${TMP_PATH}"
+printf "foo" > "${TMP_PATH}"
 chmod +x "${TMP_PATH}"
 "${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '0' ]]; then
