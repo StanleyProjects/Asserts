@@ -72,6 +72,20 @@ if [[ "${ACTUAL_VALUE}" != 'No regex!' ]]; then
 
 :> "${STDERR}"
 
+"${SCRIPT}" '42' 'foo' '(' 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '1' ]]; then
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+EXPECTED_VALUE='Context: "42"
+Invalid regex:
+---(1)
+(
+---'
+ACTUAL_VALUE="$(<"${STDERR}")"
+if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+
+:> "${STDERR}"
+
 "${SCRIPT}" '42' 'foo' '^bar$' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
