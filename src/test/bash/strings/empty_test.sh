@@ -1,19 +1,21 @@
 #!/usr/local/bin/bash
 
-SCRIPT="src/main/bash/file/empty.sh"
+SCRIPT='src/main/bash/strings/empty.sh'
 
 echo "Running test of \"${SCRIPT}\"..."
 
-if [[ ! -e "${SCRIPT}" ]]; then
- echo "No file \"${SCRIPT}\"!" >&2; exit 1
-elif [[ -L "${SCRIPT}" ]]; then
- echo "The \"${SCRIPT}\" is symlink!" >&2; exit 1
+if [[ -L "${SCRIPT}" ]]; then
+ echo "\"${SCRIPT}\" is a symlink!" >&2; exit 1
+elif [[ ! -e "${SCRIPT}" ]]; then
+ echo "\"${SCRIPT}\" does not exist!" >&2; exit 1
 elif [[ ! -f "${SCRIPT}" ]]; then
- echo "Not a regular file \"${SCRIPT}\"!" >&2; exit 1
+ echo "\"${SCRIPT}\" is not a file!" >&2; exit 1
 elif [[ ! -s "${SCRIPT}" ]]; then
- echo "File \"${SCRIPT}\" is empty!" >&2; exit 1
+ echo "\"${SCRIPT}\" is empty!" >&2; exit 1
 elif [[ ! -x "${SCRIPT}" ]]; then
- echo "File \"${SCRIPT}\" is not executable!" >&2; exit 1
+ echo "\"${SCRIPT}\" is not executable!" >&2; exit 1
+elif ! bash -n "${SCRIPT}"; then
+ echo "\"${SCRIPT}\" has wrong syntax!" >&2; exit 1
 fi
 
 STDERR="$(mktemp)"
@@ -31,65 +33,66 @@ if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != 'No path!' ]]; then
+if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
 
-TMP_PATH="$(mktemp)"
-rm "${TMP_PATH}"
-"${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
+"${SCRIPT}" '' '' '' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != "No file \"${TMP_PATH}\"!" ]]; then
+if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
 
-TMP_PATH="$(mktemp -d)"
-"${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
+"${SCRIPT}" '' '' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != "Not a regular file \"${TMP_PATH}\"!" ]]; then
+if [[ "${ACTUAL_VALUE}" != 'No context!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
-rm -rf "${TMP_PATH}"
 
 :> "${STDERR}"
 
-TMP_PATH="$(mktemp)"
-rm "${TMP_PATH}"
-ln -s "${TMP_PATH}" "${TMP_PATH}" && [[ -L "${TMP_PATH}" ]] || exit 1
-"${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
+"${SCRIPT}" '42' 'foo' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
+EXPECTED_VALUE='Context: "42"
+---(3)
+foo
+---'
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != "The \"${TMP_PATH}\" is symlink!" ]]; then
+if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
-rm "${TMP_PATH}"
+
+ACTUAL_TEXTS=(
+ 'a' ' ' $'\t' $'\n' $'\r' $'\v' $'\f' $'\x01'
+ '!' '"' '#' '$' '%' '&' "'" '(' ')' '*' '+' ',' '-' '.' '/'
+ ':' ';' '<' '=' '>' '?' '@' '[' ']' '^' '_' '`' '{' '|' '}' '~' '\'
+)
+for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
+ :> "${STDERR}"
+ "${SCRIPT}" '42' "${ACTUAL_TEXT}" 2>"${STDERR}"; CODE=$?
+ if [[ "${CODE}" != '1' ]]; then
+  echo "Code(${CODE}) error!" >&2; exit 1; fi
+ EXPECTED_VALUE="Context: \"42\"
+---(1)
+${ACTUAL_TEXT}
+---"
+ ACTUAL_VALUE="$(<"${STDERR}")"
+ if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
+  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+done
 
 :> "${STDERR}"
 
-TMP_PATH="$(mktemp)"
-printf '42' > "${TMP_PATH}"
-"${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
-if [[ "${CODE}" != '1' ]]; then
- echo "Code(${CODE}) error!" >&2; exit 1; fi
-ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != "File \"${TMP_PATH}\" is not empty!" ]]; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
-rm "${TMP_PATH}"
-
-:> "${STDERR}"
-
-TMP_PATH="$(mktemp)"
-"${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
+"${SCRIPT}" '42' '' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '0' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
 ACTUAL_VALUE="$(<"${STDERR}")"
 if [[ -n "${ACTUAL_VALUE}" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
-rm "${TMP_PATH}"
 
 rm "${STDERR}"

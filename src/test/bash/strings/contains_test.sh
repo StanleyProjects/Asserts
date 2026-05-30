@@ -1,19 +1,21 @@
 #!/usr/local/bin/bash
 
-SCRIPT="src/main/bash/eq.sh"
+SCRIPT='src/main/bash/strings/contains.sh'
 
 echo "Running test of \"${SCRIPT}\"..."
 
-if [[ ! -e "${SCRIPT}" ]]; then
- echo "No file \"${SCRIPT}\"!" >&2; exit 1
-elif [[ -L "${SCRIPT}" ]]; then
- echo "The \"${SCRIPT}\" is symlink!" >&2; exit 1
+if [[ -L "${SCRIPT}" ]]; then
+ echo "\"${SCRIPT}\" is a symlink!" >&2; exit 1
+elif [[ ! -e "${SCRIPT}" ]]; then
+ echo "\"${SCRIPT}\" does not exist!" >&2; exit 1
 elif [[ ! -f "${SCRIPT}" ]]; then
- echo "Not a regular file \"${SCRIPT}\"!" >&2; exit 1
+ echo "\"${SCRIPT}\" is not a file!" >&2; exit 1
 elif [[ ! -s "${SCRIPT}" ]]; then
- echo "File \"${SCRIPT}\" is empty!" >&2; exit 1
+ echo "\"${SCRIPT}\" is empty!" >&2; exit 1
 elif [[ ! -x "${SCRIPT}" ]]; then
- echo "File \"${SCRIPT}\" is not executable!" >&2; exit 1
+ echo "\"${SCRIPT}\" is not executable!" >&2; exit 1
+elif ! bash -n "${SCRIPT}"; then
+ echo "\"${SCRIPT}\" has wrong syntax!" >&2; exit 1
 fi
 
 STDERR="$(mktemp)"
@@ -45,6 +47,15 @@ if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
 
 :> "${STDERR}"
 
+"${SCRIPT}" '' '' '' '' 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '1' ]]; then
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if [[ "${ACTUAL_VALUE}" != 'Wrong arguments!' ]]; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+
+:> "${STDERR}"
+
 "${SCRIPT}" '' '' '' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
@@ -54,23 +65,39 @@ if [[ "${ACTUAL_VALUE}" != 'No context!' ]]; then
 
 :> "${STDERR}"
 
-"${SCRIPT}" '42' 'a' 'b' 2>"${STDERR}"; CODE=$?
+"${SCRIPT}" '42' 'a' '' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
-EXPECTED_VALUE='Context: "42"
-Actual(1): "a"
-Expected(1): "b"'
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
+if [[ "${ACTUAL_VALUE}" != 'No subtext!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 
 :> "${STDERR}"
 
-"${SCRIPT}" '42' 'a' 'a' 2>"${STDERR}"; CODE=$?
-if [[ "${CODE}" != '0' ]]; then
+"${SCRIPT}" '42' 'foo' 'bar' 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '1' ]]; then
  echo "Code(${CODE}) error!" >&2; exit 1; fi
+EXPECTED_VALUE='Context: "42"
+---(3)
+foo
+---
+does not contain:
+---(3)
+bar
+---'
 ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ -n "${ACTUAL_VALUE}" ]]; then
+if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+
+ACTUAL_TEXTS=('foo' ' foo' 'foo ' ' foo ' 'foo foo' 'foo bar' 'qux foo bar')
+for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
+ :> "${STDERR}"
+ "${SCRIPT}" '42' "${ACTUAL_TEXT}" 'foo' 2>"${STDERR}"; CODE=$?
+ if [[ "${CODE}" != '0' ]]; then
+  echo "Code(${CODE}) error!" >&2; exit 1; fi
+ ACTUAL_VALUE="$(<"${STDERR}")"
+ if [[ -n "${ACTUAL_VALUE}" ]]; then
+  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+done
 
 rm "${STDERR}"
