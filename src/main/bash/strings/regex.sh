@@ -1,19 +1,7 @@
 #!/usr/local/bin/bash
 
-if [[ $# -eq 4 ]]; then
- ASSERTS_LOCALE="$4"
-elif [[ $# -ne 3 ]]; then
- echo 'Wrong arguments!' >&2; exit 1
-else
- ASSERTS_LOCALE='C'
-fi
-
-if LC_ALL="${ASSERTS_LOCALE}" locale charmap >/dev/null 2>&1 \
- && locale -a | grep -Fx -- "${ASSERTS_LOCALE}" >/dev/null 2>&1; then
- LC_ALL="${ASSERTS_LOCALE}"
-else
- echo "Locale \"${ASSERTS_LOCALE}\" is not supported!" >&2; exit 1
-fi
+if [[ $# -ne 3 ]]; then
+ echo 'Wrong arguments!' >&2; exit 1; fi
 
 ASSERTS_CONTEXT="$1"
 
