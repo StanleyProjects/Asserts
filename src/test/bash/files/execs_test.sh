@@ -1,19 +1,21 @@
 #!/usr/local/bin/bash
 
-SCRIPT='src/main/bash/file/x.sh'
+SCRIPT='src/main/bash/files/execs.sh'
 
 echo "Running test of \"${SCRIPT}\"..."
 
-if [[ ! -e "${SCRIPT}" ]]; then
- echo "No file \"${SCRIPT}\"!" >&2; exit 1
-elif [[ -L "${SCRIPT}" ]]; then
- echo "The \"${SCRIPT}\" is symlink!" >&2; exit 1
+if [[ -L "${SCRIPT}" ]]; then
+ echo "\"${SCRIPT}\" is a symlink!" >&2; exit 1
+elif [[ ! -e "${SCRIPT}" ]]; then
+ echo "\"${SCRIPT}\" does not exist!" >&2; exit 1
 elif [[ ! -f "${SCRIPT}" ]]; then
- echo "Not a regular file \"${SCRIPT}\"!" >&2; exit 1
+ echo "\"${SCRIPT}\" is not a file!" >&2; exit 1
 elif [[ ! -s "${SCRIPT}" ]]; then
- echo "File \"${SCRIPT}\" is empty!" >&2; exit 1
+ echo "\"${SCRIPT}\" is empty!" >&2; exit 1
 elif [[ ! -x "${SCRIPT}" ]]; then
- echo "File \"${SCRIPT}\" is not executable!" >&2; exit 1
+ echo "\"${SCRIPT}\" is not executable!" >&2; exit 1
+elif ! bash -n "${SCRIPT}"; then
+ echo "\"${SCRIPT}\" has wrong syntax!" >&2; exit 1
 fi
 
 STDERR="$(mktemp)"
