@@ -14,7 +14,7 @@ elif [[ ! -s "${SCRIPT}" ]]; then
  echo "\"${SCRIPT}\" is empty!" >&2; exit 1
 elif [[ ! -x "${SCRIPT}" ]]; then
  echo "\"${SCRIPT}\" is not executable!" >&2; exit 1
-elif ! bash -n "${SCRIPT}" ]]; then
+elif ! bash -n "${SCRIPT}"; then
  echo "\"${SCRIPT}\" has wrong syntax!" >&2; exit 1
 fi
 
