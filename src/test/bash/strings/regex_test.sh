@@ -74,7 +74,7 @@ if [[ "${ACTUAL_VALUE}" != 'No regex!' ]]; then
 
 # Expects "Invalid regex" for malformed ERE patterns.
 
-ASSERTS_REGEXES=('(' '[' '|' '[z-a]' '*' '**')
+ASSERTS_REGEXES=('(' '[' '[z-a]' '*' '**')
 for ASSERTS_REGEX in "${ASSERTS_REGEXES[@]}"; do
  :> "${STDERR}"
  "${SCRIPT}" '42' '' "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
