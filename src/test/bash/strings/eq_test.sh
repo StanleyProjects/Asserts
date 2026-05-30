@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-SCRIPT="src/main/bash/strings/eq.sh"
+SCRIPT='src/main/bash/strings/eq.sh'
 
 echo "Running test of \"${SCRIPT}\"..."
 

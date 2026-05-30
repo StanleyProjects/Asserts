@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-SCRIPT="src/main/bash/strings/not_empty.sh"
+SCRIPT='src/main/bash/strings/not_empty.sh'
 
 echo "Running test of \"${SCRIPT}\"..."
 

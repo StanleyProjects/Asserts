@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-SCRIPT="src/main/bash/file/not/exists.sh"
+SCRIPT='src/main/bash/file/not/exists.sh'
 
 echo "Running test of \"${SCRIPT}\"..."
 
