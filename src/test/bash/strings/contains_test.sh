@@ -7,9 +7,9 @@ echo "Running test of \"${SCRIPT}\"..."
 if [[ -L "${SCRIPT}" ]]; then
  echo "\"${SCRIPT}\" is a symlink!" >&2; exit 1
 elif [[ ! -e "${SCRIPT}" ]]; then
- echo "No file \"${SCRIPT}\"!" >&2; exit 1
+ echo "\"${SCRIPT}\" does not exist!" >&2; exit 1
 elif [[ ! -f "${SCRIPT}" ]]; then
- echo "\"${SCRIPT}\" is not a regular file!" >&2; exit 1
+ echo "\"${SCRIPT}\" is not a file!" >&2; exit 1
 elif [[ ! -s "${SCRIPT}" ]]; then
  echo "\"${SCRIPT}\" is empty!" >&2; exit 1
 elif [[ ! -x "${SCRIPT}" ]]; then
