@@ -22,10 +22,14 @@ ASSERTS_SUBTEXT="$2"
 if [[ -z "${ASSERTS_SUBTEXT}" ]]; then
  echo 'No subtext!' >&2; exit 1; fi
 
-if ! rg -qU --fixed-strings "${ASSERTS_SUBTEXT}" "${ASSERTS_PATH}"; then
+rg -qU --fixed-strings -e "${ASSERTS_SUBTEXT}" "${ASSERTS_PATH}"; CODE=$?
+if [[ "${CODE}" == '1' ]]; then
  printf '%s' "\"${ASSERTS_PATH}\"
 does not contain:
 ---(${#ASSERTS_SUBTEXT})
 ${ASSERTS_SUBTEXT}
 ---
-" >&2; exit 1; fi
+" >&2; exit 1
+elif [[ "${CODE}" != '0' ]]; then
+ echo 'Read file error!' >&2; exit 1
+fi
