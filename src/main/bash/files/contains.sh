@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-if [[ $# -ne 3 ]]; then
+if [[ $# -ne 2 ]]; then
  echo 'Wrong arguments!' >&2; exit 1; fi
 
 ASSERTS_PATH="$1"
@@ -17,10 +17,15 @@ elif [[ ! -s "${ASSERTS_PATH}" ]]; then
  echo "\"${ASSERTS_PATH}\" is empty!" >&2; exit 1
 fi
 
-ASSERTS_TEXT="$2"
-ASSERTS_SUBTEXT="$3"
+ASSERTS_SUBTEXT="$2"
 
 if [[ -z "${ASSERTS_SUBTEXT}" ]]; then
  echo 'No subtext!' >&2; exit 1; fi
 
-echo 'Not implemented!'>&2; exit 1 # todo
+if ! rg -qU --fixed-strings "${ASSERTS_SUBTEXT}" "${ASSERTS_PATH}"; then
+ printf '%s' "\"${ASSERTS_PATH}\"
+does not contain:
+---(${#ASSERTS_SUBTEXT})
+${ASSERTS_SUBTEXT}
+---
+" >&2; exit 1; fi
