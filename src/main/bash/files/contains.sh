@@ -22,7 +22,7 @@ ASSERTS_SUBTEXT="$2"
 if [[ -z "${ASSERTS_SUBTEXT}" ]]; then
  echo 'No subtext!' >&2; exit 1; fi
 
-rg -qU --fixed-strings -e "${ASSERTS_SUBTEXT}" "${ASSERTS_PATH}" >&2; CODE=$?
+rg -qU --fixed-strings -e "${ASSERTS_SUBTEXT}" "${ASSERTS_PATH}" 2>/dev/null; CODE=$?
 if [[ "${CODE}" == '1' ]]; then
  printf '%s' "\"${ASSERTS_PATH}\"
 does not contain:

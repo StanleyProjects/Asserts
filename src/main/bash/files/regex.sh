@@ -22,7 +22,7 @@ ASSERTS_REGEX="$2"
 if [[ -z "${ASSERTS_REGEX}" ]]; then
  echo 'No regex!' >&2; exit 1; fi
 
-rg -qU -e "${ASSERTS_REGEX}" "${ASSERTS_PATH}" >&2; CODE=$?
+rg -qU -e "${ASSERTS_REGEX}" "${ASSERTS_PATH}" 2>/dev/null; CODE=$?
 if [[ "${CODE}" == '1' ]]; then
  printf '%s' "\"${ASSERTS_PATH}\"
 does not satisfy the regex:
