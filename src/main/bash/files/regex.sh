@@ -22,10 +22,16 @@ ASSERTS_REGEX="$2"
 if [[ -z "${ASSERTS_REGEX}" ]]; then
  echo 'No regex!' >&2; exit 1; fi
 
-rg -qU -e "${ASSERTS_SUBTEXT}" "${ASSERTS_PATH}" >&2; CODE=$?
+rg -qU -e "${ASSERTS_REGEX}" "${ASSERTS_PATH}" >&2; CODE=$?
 if [[ "${CODE}" == '1' ]]; then
  printf '%s' "\"${ASSERTS_PATH}\"
 does not satisfy the regex:
+---(${#ASSERTS_REGEX})
+${ASSERTS_REGEX}
+---" >&2; exit 1
+elif [[ "${CODE}" == '2' ]]; then
+ printf '%s' "\"${ASSERTS_PATH}\"
+Invalid regex:
 ---(${#ASSERTS_REGEX})
 ${ASSERTS_REGEX}
 ---" >&2; exit 1
