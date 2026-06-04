@@ -1,0 +1,7 @@
+#!/usr/local/bin/bash
+
+if [[ "${MOCKS_RG_EXIT_CODE}" =~ ^[1-9][0-9]*$ ]]; then
+ exit ${MOCKS_RG_EXIT_CODE}
+elif [[ -n "${MOCKS_RG_EXIT_CODE}" ]]; then
+ echo 'Wrong exit code!' >&2; exit 1
+fi
