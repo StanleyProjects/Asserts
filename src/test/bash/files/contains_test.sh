@@ -106,17 +106,20 @@ rm "${TMP_PATH}"
 
 ASSERTS_SUBTEXT='bar'
 
-:> "${STDERR}"
 TMP_PATH="$(mktemp)"
 printf '%s' 'foo' > "${TMP_PATH}"
-PATH="src/test/bash/mocks/ripgrep/bin:${PATH}" \
- MOCKS_RG_EXIT_CODE=2 \
- "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_SUBTEXT}" 2>"${STDERR}"; CODE=$?
-if [[ "${CODE}" != '1' ]]; then
- echo "Code(${CODE}) error!" >&2; exit 1; fi
-ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ "${ACTUAL_VALUE}" != 'Read file error!' ]]; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+EXIT_CODES=(2 42 127)
+for MOCKS_RG_EXIT_CODE in "${EXIT_CODES[@]}"; do
+ :> "${STDERR}"
+ PATH="src/test/bash/mocks/ripgrep/bin:${PATH}" \
+  MOCKS_RG_EXIT_CODE="${MOCKS_RG_EXIT_CODE}" \
+  "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_SUBTEXT}" 2>"${STDERR}"; CODE=$?
+ if [[ "${CODE}" != '1' ]]; then
+  echo "Code(${CODE}) error!" >&2; exit 1; fi
+ ACTUAL_VALUE="$(<"${STDERR}")"
+ if [[ "${ACTUAL_VALUE}" != 'Read file error!' ]]; then
+  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+done
 rm "${TMP_PATH}"
 
 :> "${STDERR}"
