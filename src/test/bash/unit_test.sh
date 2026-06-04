@@ -1,21 +1,26 @@
 #!/usr/local/bin/bash
 
-tests='src/test/bash'
+TESTS='src/test/bash'
 
 # todo unit_test.sh -> check_tests.sh
 
-while IFS= read -r -d '' SCRIPT; do
- if [[ "${SCRIPT}" == "${tests}/unit_test.sh" || "${SCRIPT}" =~ ^${tests}/check_.+\.sh$ ]]; then
-  continue
- elif [[ -L "${SCRIPT}" ||  ! -f "${SCRIPT}" || ! -x "${SCRIPT}" || ! "${SCRIPT}" =~ ^${tests}/.+_test\.sh$ ]]; then
-  echo "Script \"${SCRIPT}\" is not supported!" >&2; exit 1
+while IFS= read -r -d '' TEST_PATH; do
+ if [[ "${TEST_PATH}" == "${TESTS}/unit_test.sh" \
+  || "${TEST_PATH}" =~ ^${TESTS}/check_.+\.sh$ \
+  || "${TEST_PATH}" =~ ^${TESTS}/mocks/.+$ \
+  ]]; then continue
+ elif [[ -L "${TEST_PATH}" || ! -f "${TEST_PATH}" \
+  || ! -s "${TEST_PATH}" || ! -x "${TEST_PATH}" \
+  || ! "${TEST_PATH}" =~ ^${TESTS}/.+_test\.sh$ \
+  ]] || ! /usr/local/bin/bash -n "${TEST_PATH}"; then
+  echo "\"${TEST_PATH}\" is not supported!" >&2; exit 1
  fi
- "${SCRIPT}" || exit 1
-done < <(find "${tests}" -depth -type f -print0)
+ "${TEST_PATH}" || exit 1
+done < <(find "${TESTS}" -depth -type f -print0)
 
-. $tests/check_coverage.sh
+. ${TESTS}/check_coverage.sh
 
-. $tests/check_license.sh
-. $tests/check_readme.sh
+. ${TESTS}/check_license.sh
+. ${TESTS}/check_readme.sh
 
 echo 'All tests were successful.'
