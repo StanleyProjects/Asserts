@@ -93,36 +93,68 @@ if [[ "${ACTUAL_VALUE}" != "\"${TMP_PATH}\" is empty!" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 rm "${TMP_PATH}"
 
-echo 'Not implemented!' >&2; exit 1 # todo
-
+:> "${STDERR}"
 TMP_PATH="$(mktemp)"
+printf '%s' 'foo' > "${TMP_PATH}"
+"${SCRIPT}" "${TMP_PATH}" '' 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '1' ]]; then
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if [[ "${ACTUAL_VALUE}" != 'No subtext!' ]]; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+rm "${TMP_PATH}"
+
+ASSERTS_SUBTEXT='bar'
+
+:> "${STDERR}"
+TMP_PATH="$(mktemp)"
+printf '%s' 'foo' > "${TMP_PATH}"
+"${SCRIPT}" "${TMP_PATH}" "${ASSERTS_SUBTEXT}" 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '1' ]]; then
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+EXPECTED_VALUE="\"${TMP_PATH}\"
+does not contain:
+---(${#ASSERTS_SUBTEXT})
+${ASSERTS_SUBTEXT}
+---"
+ACTUAL_VALUE="$(<"${STDERR}")"
+if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+rm "${TMP_PATH}"
+
+ASSERTS_SUBTEXT='foo'
 ACTUAL_TEXTS=(
- 'a' ' ' $'\t' $'\n' $'\r' $'\v' $'\f' $'\x01'
- '!' '"' '#' '$' '%' '&' "'" '(' ')' '*' '+' ',' '-' '.' '/'
- ':' ';' '<' '=' '>' '?' '@' '[' ']' '^' '_' '`' '{' '|' '}' '~' '\'
+ 'foo' ' foo' 'foo ' ' foo ' 'xfoo' 'foox' 'xfoox' 'foo foo' 'foo bar' 'qux foo'
+ $'foo\n' $'\nfoo\n'  $'foo\n'  $'\nfoo\n'
+          $'xfoo\n'   $'foo\nx' $'xfoo\nx'
+          $'x\nfoo\n' $'foo\nx' $'x\nfoo\nx'
 )
 for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
  :> "${STDERR}"
  printf '%s' "${ACTUAL_TEXT}" > "${TMP_PATH}"
- "${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
+ "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_SUBTEXT}" 2>"${STDERR}"; CODE=$?
  if [[ "${CODE}" != '0' ]]; then
   echo "Code(${CODE}) error!" >&2; exit 1; fi
  ACTUAL_VALUE="$(<"${STDERR}")"
  if [[ -n "${ACTUAL_VALUE}" ]]; then
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 done
-rm "${TMP_PATH}"
 
-:> "${STDERR}"
-
-TMP_PATH="$(mktemp)"
-printf '42' > "${TMP_PATH}"
-"${SCRIPT}" "${TMP_PATH}" 2>"${STDERR}"; CODE=$?
-if [[ "${CODE}" != '0' ]]; then
- echo "Code(${CODE}) error!" >&2; exit 1; fi
-ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ -n "${ACTUAL_VALUE}" ]]; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
-rm "${TMP_PATH}"
+ASSERTS_SUBTEXT=$'foo\nbar'
+ACTUAL_TEXTS=(
+ $'foo\nbar' $'xfoo\nbar'   $'foo\nbarx'   $'xfoo\nbarx'
+             $'\nfoo\nbar'  $'foo\nbar\n'  $'\nfoo\nbar\n'
+             $'x\nfoo\nbar' $'foo\nbar\nx' $'x\nfoo\nbar\nx'
+)
+for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
+ :> "${STDERR}"
+ printf '%s' "${ACTUAL_TEXT}" > "${TMP_PATH}"
+ "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_SUBTEXT}" 2>"${STDERR}"; CODE=$?
+ if [[ "${CODE}" != '0' ]]; then
+  echo "Code(${CODE}) error!" >&2; exit 1; fi
+ ACTUAL_VALUE="$(<"${STDERR}")"
+ if [[ -n "${ACTUAL_VALUE}" ]]; then
+  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+done
 
 rm "${STDERR}"
