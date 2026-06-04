@@ -122,12 +122,31 @@ if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 rm "${TMP_PATH}"
 
+ACTUAL_TEXT='--foo--'
+ASSERTS_SUBTEXTS=('-' '--' '--foo' 'foo--' '--foo--')
+for ASSERTS_SUBTEXT in "${ASSERTS_SUBTEXTS[@]}"; do
+ :> "${STDERR}"
+ printf '%s' "${ACTUAL_TEXT}" > "${TMP_PATH}"
+ "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_SUBTEXT}" 2>"${STDERR}"; CODE=$?
+ if [[ "${CODE}" != '0' ]]; then
+  echo "Code(${CODE}) error!" >&2; exit 1; fi
+ ACTUAL_VALUE="$(<"${STDERR}")"
+ if [[ -n "${ACTUAL_VALUE}" ]]; then
+  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+done
+
 ASSERTS_SUBTEXT='foo'
 ACTUAL_TEXTS=(
- 'foo' ' foo' 'foo ' ' foo ' 'xfoo' 'foox' 'xfoox' 'foo foo' 'foo bar' 'qux foo'
- $'foo\n' $'\nfoo\n'  $'foo\n'  $'\nfoo\n'
-          $'xfoo\n'   $'foo\nx' $'xfoo\nx'
-          $'x\nfoo\n' $'foo\nx' $'x\nfoo\nx'
+ 'qux foo bar'
+     'foo'      'foo foo'    'foo bar'
+     'foox'    'xfoo'       'xfoox'
+     'foo*'    '*foo'       '*foo*'
+     'foo.'    '.foo'       '.foo.'
+     'foo '    ' foo'       ' foo '
+    $'foo\n' $'\nfoo'     $'\nfoo\n'
+   $'xfoo\n'   $'foo\nx'   $'xfoo\nx'
+ $'x\nfoo'   $'\nfoox'   $'x\nfoox'
+ $'x\nfoo\n' $'\nfoo\nx' $'x\nfoo\nx'
 )
 for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
  :> "${STDERR}"
@@ -142,9 +161,10 @@ done
 
 ASSERTS_SUBTEXT=$'foo\nbar'
 ACTUAL_TEXTS=(
- $'foo\nbar' $'xfoo\nbar'   $'foo\nbarx'   $'xfoo\nbarx'
-             $'\nfoo\nbar'  $'foo\nbar\n'  $'\nfoo\nbar\n'
-             $'x\nfoo\nbar' $'foo\nbar\nx' $'x\nfoo\nbar\nx'
+    $'foo\nbar\n' $'\nfoo\nbar'     $'\nfoo\nbar\n'
+   $'xfoo\nbar\n'   $'foo\nbar\nx'   $'xfoo\nbar\nx'
+ $'x\nfoo\nbar'   $'\nfoo\nbarx'   $'x\nfoo\nbarx'
+ $'x\nfoo\nbar\n' $'\nfoo\nbar\nx' $'x\nfoo\nbar\nx'
 )
 for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
  :> "${STDERR}"
@@ -156,5 +176,6 @@ for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
  if [[ -n "${ACTUAL_VALUE}" ]]; then
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 done
+rm "${TMP_PATH}"
 
 rm "${STDERR}"
