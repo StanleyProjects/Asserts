@@ -21,8 +21,7 @@ if [[ "${CODE}" == '2' ]]; then
 Invalid regex:
 ---(${#ASSERTS_REGEX})
 ${ASSERTS_REGEX}
----" >&2
- exit 1
+---" >&2; exit 1
 elif [[ "${CODE}" != '0' ]]; then
  echo "Context: \"${ASSERTS_CONTEXT}\"
 ---(${#ASSERTS_TEXT})
@@ -31,6 +30,5 @@ ${ASSERTS_TEXT}
 does not satisfy the regex:
 ---(${#ASSERTS_REGEX})
 ${ASSERTS_REGEX}
----" >&2
- exit 1
+---" >&2; exit 1
 fi
