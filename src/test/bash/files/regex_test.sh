@@ -104,18 +104,34 @@ if [[ "${ACTUAL_VALUE}" != 'No regex!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 rm "${TMP_PATH}"
 
-echo 'Not implemented!'; exit 1 # todo
-
-ASSERTS_SUBTEXT='bar'
+ASSERTS_REGEX='bar'
 
 TMP_PATH="$(mktemp)"
 printf '%s' 'foo' > "${TMP_PATH}"
-EXIT_CODES=(2 42 127)
+:> "${STDERR}"
+PATH="src/test/bash/mocks/ripgrep/bin:${PATH}" \
+ MOCKS_RG_EXIT_CODE=2 \
+ "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '1' ]]; then
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+EXPECTED_VALUE="\"${TMP_PATH}\"
+Invalid regex:
+---(${#ASSERTS_REGEX})
+${ASSERTS_REGEX}
+---"
+ACTUAL_VALUE="$(<"${STDERR}")"
+if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+rm "${TMP_PATH}"
+
+TMP_PATH="$(mktemp)"
+printf '%s' 'foo' > "${TMP_PATH}"
+EXIT_CODES=(3 42 127)
 for MOCKS_RG_EXIT_CODE in "${EXIT_CODES[@]}"; do
  :> "${STDERR}"
  PATH="src/test/bash/mocks/ripgrep/bin:${PATH}" \
   MOCKS_RG_EXIT_CODE="${MOCKS_RG_EXIT_CODE}" \
-  "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_SUBTEXT}" 2>"${STDERR}"; CODE=$?
+  "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
  if [[ "${CODE}" != '1' ]]; then
   echo "Code(${CODE}) error!" >&2; exit 1; fi
  ACTUAL_VALUE="$(<"${STDERR}")"
@@ -123,6 +139,8 @@ for MOCKS_RG_EXIT_CODE in "${EXIT_CODES[@]}"; do
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 done
 rm "${TMP_PATH}"
+
+echo 'Not implemented!'; exit 1 # todo
 
 :> "${STDERR}"
 TMP_PATH="$(mktemp)"
