@@ -106,7 +106,7 @@ rm "${TMP_PATH}"
 
 TMP_PATH="$(mktemp)"
 printf '%s' 'foo' > "${TMP_PATH}"
-ASSERTS_REGEXES=('(' '[' '[z-a]' '*' '**')
+ASSERTS_REGEXES=('(' ')' '[' '[z-a]' '*' '**')
 for ASSERTS_REGEX in "${ASSERTS_REGEXES[@]}"; do
  :> "${STDERR}"
  "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
@@ -163,6 +163,18 @@ for ASSERTS_REGEX in "${ASSERTS_REGEXES[@]}"; do
  :> "${STDERR}"
  printf '%s' "${ACTUAL_TEXT}" > "${TMP_PATH}"
  "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
+ if [[ "${CODE}" != '0' ]]; then
+  echo "Code(${CODE}) error!" >&2; exit 1; fi
+ ACTUAL_VALUE="$(<"${STDERR}")"
+ if [[ -n "${ACTUAL_VALUE}" ]]; then
+  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+done
+
+ACTUAL_TEXTS=('a' ']' $'\n' $'a\n')
+for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
+ :> "${STDERR}"
+ printf '%s' "${ACTUAL_TEXT}" > "${TMP_PATH}"
+ "${SCRIPT}" "${TMP_PATH}" "${ACTUAL_TEXT}" 2>"${STDERR}"; CODE=$?
  if [[ "${CODE}" != '0' ]]; then
   echo "Code(${CODE}) error!" >&2; exit 1; fi
  ACTUAL_VALUE="$(<"${STDERR}")"
