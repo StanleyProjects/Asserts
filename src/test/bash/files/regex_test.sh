@@ -249,6 +249,24 @@ for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 done
 
+ASSERTS_REGEX=$'foo\nbar'
+ACTUAL_TEXTS=('foobar' 'foo bar' 'fooxbar' 'foo\nbar' $'foo\tbar' $'foo\nbaz')
+for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
+ :> "${STDERR}"
+ printf '%s' "${ACTUAL_TEXT}" > "${TMP_PATH}"
+ "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
+ if [[ "${CODE}" != '1' ]]; then
+  echo "Code(${CODE}) error!" >&2; exit 1; fi
+ EXPECTED_VALUE="\"${TMP_PATH}\"
+does not satisfy the regex:
+---(${#ASSERTS_REGEX})
+${ASSERTS_REGEX}
+---"
+ ACTUAL_VALUE="$(<"${STDERR}")"
+ if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
+  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+done
+
 ASSERTS_REGEX='.*foo.*bar.*'
 ACTUAL_TEXTS=(
   'foobar'    'foobar '      ' foobar'        ' foobar '
