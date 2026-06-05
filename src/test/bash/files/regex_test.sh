@@ -174,14 +174,20 @@ for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 done
 
-:> "${STDERR}"
-printf '%s' $'\n' > "${TMP_PATH}"
-"${SCRIPT}" "${TMP_PATH}" '^$' 2>"${STDERR}"; CODE=$?
-if [[ "${CODE}" != '0' ]]; then
- echo "Code(${CODE}) error!" >&2; exit 1; fi
-ACTUAL_VALUE="$(<"${STDERR}")"
-if [[ -n "${ACTUAL_VALUE}" ]]; then
- echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+ASSERTS_REGEX='^$'
+ACTUAL_TEXTS=($'\n' $'\n\n' $'x\n\n' $'\nx' $'x\n\nx')
+for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
+ :> "${STDERR}"
+ printf '%s' "${ACTUAL_TEXT}" > "${TMP_PATH}"
+ "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
+ if [[ "${CODE}" != '0' ]]; then
+  echo "Code(${CODE}) error!" >&2; exit 1; fi
+ ACTUAL_VALUE="$(<"${STDERR}")"
+ if [[ -n "${ACTUAL_VALUE}" ]]; then
+  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+done
+
+echo 'Not implemented!'; exit 1 # todo
 
 # Expects mismatch for non-empty one-char texts against ^$.
 
@@ -247,7 +253,7 @@ done
 
 ASSERTS_REGEX='.*foo.*bar.*'
 ACTUAL_TEXTS=(
-  'foobar'
+  'foobar'    'foobar '      ' foobar'        ' foobar '
   'foo bar'   'foo bar '     ' foo bar'       ' foo bar '
   'fooxbar'   'fooxbarx'     'xfooxbar'       'xfooxbarx'
  $'foo\tbar' $'foo\tbar\t' $'\tfoo\tbar'    $'\tfoo\tbar\t'
@@ -257,7 +263,7 @@ for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
  printf '%s' "${ACTUAL_TEXT}" > "${TMP_PATH}"
  "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
  if [[ "${CODE}" != '0' ]]; then
-  echo "Code(${CODE}) error! ACTUAL_TEXT(${#ACTUAL_TEXT}): \"${ACTUAL_TEXT}\"}" >&2; exit 1; fi
+  echo "Code(${CODE}) error!" >&2; exit 1; fi
  ACTUAL_VALUE="$(<"${STDERR}")"
  if [[ -n "${ACTUAL_VALUE}" ]]; then
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
@@ -274,7 +280,30 @@ for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
  printf '%s' "${ACTUAL_TEXT}" > "${TMP_PATH}"
  "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
  if [[ "${CODE}" != '0' ]]; then
-  echo "Code(${CODE}) error! ACTUAL_TEXT(${#ACTUAL_TEXT}): \"${ACTUAL_TEXT}\"}" >&2; exit 1; fi
+  echo "Code(${CODE}) error!" >&2; exit 1; fi
+ ACTUAL_VALUE="$(<"${STDERR}")"
+ if [[ -n "${ACTUAL_VALUE}" ]]; then
+  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+done
+
+ASSERTS_REGEX='^foo.*bar$'
+ACTUAL_TEXTS=(
+  'foobar '      ' foobar'        ' foobar '
+  'foo bar '     ' foo bar'       ' foo bar '
+  'fooxbarx'     'xfooxbar'       'xfooxbarx'
+ $'foo\tbar\t' $'\tfoo\tbar'    $'\tfoo\tbar\t'
+)
+for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
+ :> "${STDERR}"
+ printf '%s' "${ACTUAL_TEXT}" > "${TMP_PATH}"
+ "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
+ if [[ "${CODE}" != '1' ]]; then
+  echo "Code(${CODE}) error!" >&2; exit 1; fi
+ EXPECTED_VALUE="\"${TMP_PATH}\"
+does not satisfy the regex:
+---(${#ASSERTS_REGEX})
+${ASSERTS_REGEX}
+---"
  ACTUAL_VALUE="$(<"${STDERR}")"
  if [[ -n "${ACTUAL_VALUE}" ]]; then
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
