@@ -174,6 +174,15 @@ for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 done
 
+:> "${STDERR}"
+printf '%s' $'\n' > "${TMP_PATH}"
+"${SCRIPT}" "${TMP_PATH}" '^$' 2>"${STDERR}"; CODE=$?
+if [[ "${CODE}" != '0' ]]; then
+ echo "Code(${CODE}) error!" >&2; exit 1; fi
+ACTUAL_VALUE="$(<"${STDERR}")"
+if [[ -n "${ACTUAL_VALUE}" ]]; then
+ echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+
 # Expects mismatch for non-empty one-char texts against ^$.
 
 ACTUAL_TEXTS=(' ' $'\t')
