@@ -94,7 +94,6 @@ if [[ "${ACTUAL_VALUE}" != "\"${TMP_PATH}\" is empty!" ]]; then
 rm "${TMP_PATH}"
 
 :> "${STDERR}"
-TMP_PATH="$(mktemp)"
 printf '%s' 'foo' > "${TMP_PATH}"
 "${SCRIPT}" "${TMP_PATH}" '' 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
@@ -102,9 +101,7 @@ if [[ "${CODE}" != '1' ]]; then
 ACTUAL_VALUE="$(<"${STDERR}")"
 if [[ "${ACTUAL_VALUE}" != 'No regex!' ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
-rm "${TMP_PATH}"
 
-TMP_PATH="$(mktemp)"
 printf '%s' 'foo' > "${TMP_PATH}"
 ASSERTS_REGEXES=('(' ')' '[' '[z-a]' '*' '**')
 for ASSERTS_REGEX in "${ASSERTS_REGEXES[@]}"; do
@@ -121,11 +118,9 @@ ${ASSERTS_REGEX}
  if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 done
-rm "${TMP_PATH}"
 
 ASSERTS_REGEX='bar'
 
-TMP_PATH="$(mktemp)"
 printf '%s' 'foo' > "${TMP_PATH}"
 EXIT_CODES=(3 42 127)
 for MOCKS_RG_EXIT_CODE in "${EXIT_CODES[@]}"; do
@@ -139,10 +134,8 @@ for MOCKS_RG_EXIT_CODE in "${EXIT_CODES[@]}"; do
  if [[ "${ACTUAL_VALUE}" != 'Read file error!' ]]; then
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 done
-rm "${TMP_PATH}"
 
 :> "${STDERR}"
-TMP_PATH="$(mktemp)"
 printf '%s' 'foo' > "${TMP_PATH}"
 "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
 if [[ "${CODE}" != '1' ]]; then
@@ -155,7 +148,6 @@ ${ASSERTS_REGEX}
 ACTUAL_VALUE="$(<"${STDERR}")"
 if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
-rm "${TMP_PATH}"
 
 ACTUAL_TEXT='--foo--'
 ASSERTS_REGEXES=('-' '--' '--foo' 'foo--' '--foo--')
@@ -202,9 +194,7 @@ ${ASSERTS_REGEX}
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 done
 
-echo 'Not implemented!'; exit 1 # todo
-
-ASSERTS_SUBTEXT='foo'
+ASSERTS_REGEX='.*foo.*'
 ACTUAL_TEXTS=(
  'qux foo bar'
      'foo'      'foo foo'    'foo bar'
@@ -220,7 +210,7 @@ ACTUAL_TEXTS=(
 for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
  :> "${STDERR}"
  printf '%s' "${ACTUAL_TEXT}" > "${TMP_PATH}"
- "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_SUBTEXT}" 2>"${STDERR}"; CODE=$?
+ "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
  if [[ "${CODE}" != '0' ]]; then
   echo "Code(${CODE}) error!" >&2; exit 1; fi
  ACTUAL_VALUE="$(<"${STDERR}")"
@@ -228,7 +218,7 @@ for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 done
 
-ASSERTS_SUBTEXT=$'foo\nbar'
+ASSERTS_REGEX=$'.*foo\nbar.*'
 ACTUAL_TEXTS=(
     $'foo\nbar\n' $'\nfoo\nbar'     $'\nfoo\nbar\n'
    $'xfoo\nbar\n'   $'foo\nbar\nx'   $'xfoo\nbar\nx'
@@ -238,13 +228,13 @@ ACTUAL_TEXTS=(
 for ACTUAL_TEXT in "${ACTUAL_TEXTS[@]}"; do
  :> "${STDERR}"
  printf '%s' "${ACTUAL_TEXT}" > "${TMP_PATH}"
- "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_SUBTEXT}" 2>"${STDERR}"; CODE=$?
+ "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
  if [[ "${CODE}" != '0' ]]; then
   echo "Code(${CODE}) error!" >&2; exit 1; fi
  ACTUAL_VALUE="$(<"${STDERR}")"
  if [[ -n "${ACTUAL_VALUE}" ]]; then
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 done
-rm "${TMP_PATH}"
 
+rm "${TMP_PATH}"
 rm "${STDERR}"
