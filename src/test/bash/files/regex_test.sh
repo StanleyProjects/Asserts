@@ -307,5 +307,23 @@ ${ASSERTS_REGEX}
   echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
 done
 
+ACTUAL_TEXT=$'foo\nbar'
+ASSERTS_REGEXES=('foo.*bar' '.*foo.*bar.*' '^foo.*bar*$')
+for ASSERTS_REGEX in "${ASSERTS_REGEXES[@]}"; do
+ :> "${STDERR}"
+ printf '%s' "${ACTUAL_TEXT}" > "${TMP_PATH}"
+ "${SCRIPT}" "${TMP_PATH}" "${ASSERTS_REGEX}" 2>"${STDERR}"; CODE=$?
+ if [[ "${CODE}" != '1' ]]; then
+  echo "Code(${CODE}) error!" >&2; exit 1; fi
+ EXPECTED_VALUE="\"${TMP_PATH}\"
+does not satisfy the regex:
+---(${#ASSERTS_REGEX})
+${ASSERTS_REGEX}
+---"
+ ACTUAL_VALUE="$(<"${STDERR}")"
+ if [[ "${ACTUAL_VALUE}" != "${EXPECTED_VALUE}" ]]; then
+  echo "Actual value(${#ACTUAL_VALUE}) is: \"${ACTUAL_VALUE}\"!" >&2; exit 1; fi
+done
+
 rm "${TMP_PATH}"
 rm "${STDERR}"
